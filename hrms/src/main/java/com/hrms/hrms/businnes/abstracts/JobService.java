@@ -2,10 +2,13 @@ package com.hrms.hrms.businnes.abstracts;
 
 import java.util.List;
 
-import com.hrms.hrms.entities.concretes.JobTitle;
+import com.hrms.hrms.core.utilities.result.DataResult;
+import com.hrms.hrms.core.utilities.result.Result;
+import com.hrms.hrms.entities.concretes.JobPosition;
 
 public interface JobService {
 	
-	List<JobTitle> getAll();
+	DataResult<List<JobPosition>> getAll();
+	Result add(JobPosition jobTitle);
 
 }

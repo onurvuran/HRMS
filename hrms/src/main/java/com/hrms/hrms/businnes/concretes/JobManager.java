@@ -6,24 +6,34 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.hrms.hrms.businnes.abstracts.JobService;
-import com.hrms.hrms.dataAccess.JobDao;
-import com.hrms.hrms.entities.concretes.JobTitle;
+import com.hrms.hrms.core.utilities.result.DataResult;
+import com.hrms.hrms.core.utilities.result.Result;
+import com.hrms.hrms.core.utilities.result.SuccessDataResult;
+import com.hrms.hrms.core.utilities.result.SuccessResult;
+import com.hrms.hrms.dataAccess.abstracts.JobPositionDao;
+import com.hrms.hrms.entities.concretes.JobPosition;
 
 @Service
 public class JobManager implements JobService {
-	private JobDao jobDao;
+	private JobPositionDao jobDao;
 	
 	
      @Autowired
-	public JobManager(JobDao jobDao) {
+	public JobManager(JobPositionDao jobDao) {
 		super();
 		this.jobDao = jobDao;
 	}
 
 	@Override
-	public List<JobTitle> getAll() {
+  public DataResult<List<JobPosition>> getAll() {
 		
-		return this.jobDao.findAll();
+		return new SuccessDataResult<List<JobPosition>>(this.jobDao.findAll(),"Jobtitle listelendi");  //this.jobDao.findAll();
+	}
+
+	@Override
+	public Result add(JobPosition jobTitle) {
+		this.jobDao.save(jobTitle);
+		return new SuccessResult("Job eklendi.");
 	}
 	
 	

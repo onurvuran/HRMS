@@ -1,14 +1,13 @@
 package com.hrms.hrms.businnes.concretes;
 
-import java.time.LocalDate;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.hrms.hrms.businnes.abstracts.CandidatesService;
-import com.hrms.hrms.core.utilities.adapters.validator.email.EmailValidator;
-import com.hrms.hrms.core.utilities.adapters.validator.fakemernis.UserValidationService;
+import com.hrms.hrms.core.utilities.adapters.validator.email.EmailValidationService;
+import com.hrms.hrms.core.utilities.adapters.validator.fakemernis.FakeMernisService;
 import com.hrms.hrms.core.utilities.result.DataResult;
 import com.hrms.hrms.core.utilities.result.ErrorResult;
 import com.hrms.hrms.core.utilities.result.Result;
@@ -16,20 +15,20 @@ import com.hrms.hrms.core.utilities.result.SuccessDataResult;
 import com.hrms.hrms.core.utilities.result.SuccessResult;
 import com.hrms.hrms.dataAccess.abstracts.CandidatesDao;
 import com.hrms.hrms.entities.concretes.Candidate;
-import com.hrms.hrms.entities.concretes.User;
-
 
 @Service
 public class CandidatesManager implements CandidatesService {
 
 	private CandidatesDao candidatesDao;
-	private UserValidationService userValidationService;
+	private FakeMernisService fakeMernisService;
+//	private EmailValidationService emailValidatorService;
 
 	@Autowired
-	public CandidatesManager(CandidatesDao candidatesDao, UserValidationService userValidationService) {
+	public CandidatesManager(CandidatesDao candidatesDao, FakeMernisService fakeMernisService) {
 		super();
 		this.candidatesDao = candidatesDao;
-		this.userValidationService = userValidationService;
+		this.fakeMernisService = fakeMernisService;
+//		this.emailValidatorService = emailValidatorService;
 	}
 
 	@Override
@@ -41,81 +40,62 @@ public class CandidatesManager implements CandidatesService {
 	@Override
 	public Result add(Candidate candidate) {
 
-		if (!validationCondidate(candidate)) {
-			return new ErrorResult("Missing data entry.");
+		if (candidate.getFirstName().isEmpty()) {
+			return new ErrorResult("Firs Name boşo olamaz");
 		}
 
-		if (!checkIfNationalityId(candidate.getIdentityNumber())) {
-			return new ErrorResult("Nationality already exist.");
+		if (candidate.getLastName().isEmpty()) {
+			return new ErrorResult("Lastname boşo olamaz");
+
 		}
 
-		if (!checkIfRealPerson(candidate)) {
-			return new ErrorResult("Person could not be verified.");
+		if (candidate.getBirthDate().isEmpty()) {
+			return new ErrorResult("Birtday boş boş boşo olamaz");
 		}
 
-		if (!checkIfEmailExists(candidate.getEmail())) {
-			return new ErrorResult("Email already exist.");
+		if (candidate.getIdentityNumber().isEmpty()) {
+			return new ErrorResult("E mail boş bıraılamaz boş boş boşo olamaz");
 		}
 
-		if (!checkEmailFormat(candidate.getEmail())) {
-			return new ErrorResult("The e-mail information does not meet the required conditions.");
+		if (candidate.getPassword().isEmpty()) {
+			return new ErrorResult("Password boş boş boşo olamaz");
 		}
 
-		candidate.setBirthDate(LocalDate.now());
-		candidate.setActive(true);
+		if (candidate.getEmail().isEmpty()) {
+			return new ErrorResult("E mail boş bıraılamaz boş boş boşo olamaz");
+		}
 
-		this.candidatesDao.save(candidate);
-		return new SuccessResult("Candidate added.");
+		if (!candidate.getPassword().equals(candidate.getPasswordRepait()) ) {
+			return new ErrorResult("Aynı password giriiz");
+		}
+		
+		if (candidatesDao.findByidentityNumberEquals(candidate.getIdentityNumber())!= null) {
+            return new ErrorResult("TC Kimlik Numarası Daha Önce Kullanıldı");
+        }
+
+		
+		if (candidatesDao.findByEmailEquals(candidate.getEmail())!=null) {
+            return new ErrorResult("E-Posta  Daha Önce Kullanıldı");
+        }
+		
+		if(!fakeMernisService.mernisCheck(candidate)) {
+			return new ErrorResult("mernis doğrulaması yapılamadı");
+		}
+		
+//		if(emailValidatorService.mailValidation(candidate)) {
+//			return new ErrorResult("Eposta dogrulaması başarısız");
+//		}
+		
+		
+		
+		
+		
+
+		return new SuccessResult("kaydoldunuz");
 	}
 
-	private boolean validationCondidate(Candidate candidate) {
-		if (candidate.getEmail() == null && candidate.getPassword() == null && candidate.getFirstName() == null
-				&& candidate.getLastName() == null && candidate.getIdentityNumber() == null
-				&& candidate.getBirthDate() == null) {
-			return false;
-		}
-		return true;
-	}
 
-	private boolean checkIfNationalityId(String identityNumber) {
-		if (this.candidatesDao.findByidentityNumber(identityNumber) != null) {
-			return false;
-		}
-		return true;
-	}
 
-	private boolean checkIfRealPerson(Candidate candidate) {
-		if (!this.userValidationService.CheckIfRealPerson(candidate.getIdentityNumber().isEmpty(),
-				candidate.getFirstName().isEmpty(), candidate.getLastName().isEmpty(),
-				candidate.getBirthDate())) {
-			return false;
-		}
-		return true;
-	}
 
-	private boolean checkIfEmailExists(String emailAddress) {
-		if (this.candidatesDao.findByEmail(emailAddress) != null) {
-			return false;
-		}
-		return true;
-	}
-
-	private boolean checkEmailFormat(String emailAddress) {
-		if (!EmailValidator.isEmailValid(emailAddress)) {
-			return false;
-		}
-		return true;
-
-	}
-
-	@Override
-	public DataResult<User> findByEmail(String email) {
-		return new SuccessDataResult<User>(this.candidatesDao.findByEmail(email));
-	}
-
-	@Override
-	public DataResult<Candidate> findByidentityNumber(String identityNumber) {
-		return new SuccessDataResult<Candidate>(this.candidatesDao.findByidentityNumber(identityNumber));
-	}
 
 }

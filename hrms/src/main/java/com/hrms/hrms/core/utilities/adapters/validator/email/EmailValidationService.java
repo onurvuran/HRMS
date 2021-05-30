@@ -1,10 +1,10 @@
 package com.hrms.hrms.core.utilities.adapters.validator.email;
 
+import com.hrms.hrms.entities.concretes.User;
+
 public interface EmailValidationService {
 	
-	boolean sendVerificationCode(String email,String code);
-	
-	String codeGenerator();
+	public boolean mailValidation(User user);
 	
 
 }

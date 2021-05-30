@@ -34,7 +34,7 @@ public class Candidate extends User{
 	private String identityNumber;
 
 	@Column(name = "birth_date")
-	private LocalDate birthDate;
+	private String birthDate;
 
 	@Column(name = "is_active")
 	private boolean isActive;

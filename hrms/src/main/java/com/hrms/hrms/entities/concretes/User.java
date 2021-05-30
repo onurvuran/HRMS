@@ -8,6 +8,7 @@ import javax.persistence.Id;
 import javax.persistence.Inheritance;
 import javax.persistence.InheritanceType;
 import javax.persistence.Table;
+import javax.persistence.Transient;
 
 import com.sun.istack.NotNull;
 
@@ -34,11 +35,12 @@ public class User {
 	@Column(name = "password")
 	private String password;
 
-//	@Transient
-//	private String password_verify;
+	@Transient
+	private String passwordRepait;
 
 	
 	@Column(name = "is_mail_verify")
 	private Boolean isMailVerify;
+	;
 
 }

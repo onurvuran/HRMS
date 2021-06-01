@@ -21,14 +21,14 @@ public class CandidatesManager implements CandidatesService {
 
 	private CandidatesDao candidatesDao;
 	private FakeMernisService fakeMernisService;
-//	private EmailValidationService emailValidatorService;
+	private EmailValidationService emailValidatorService;
 
 	@Autowired
-	public CandidatesManager(CandidatesDao candidatesDao, FakeMernisService fakeMernisService) {
+	public CandidatesManager(CandidatesDao candidatesDao, FakeMernisService fakeMernisService, EmailValidationService emailValidatorService) {
 		super();
 		this.candidatesDao = candidatesDao;
 		this.fakeMernisService = fakeMernisService;
-//		this.emailValidatorService = emailValidatorService;
+		this.emailValidatorService = emailValidatorService;
 	}
 
 	@Override
@@ -78,19 +78,17 @@ public class CandidatesManager implements CandidatesService {
             return new ErrorResult("E-Posta  Daha Önce Kullanıldı");
         }
 		
-		if(!fakeMernisService.mernisCheck(candidate)) {
+		if(fakeMernisService.mernisCheck(candidate)) {
 			return new ErrorResult("mernis doğrulaması yapılamadı");
 		}
 		
-//		if(emailValidatorService.mailValidation(candidate)) {
-//			return new ErrorResult("Eposta dogrulaması başarısız");
-//		}
+		if(emailValidatorService.mailValidation(candidate)) {
+			return new ErrorResult("Eposta dogrulaması başarısız");
+		}
 		
 		
 		
-		
-		
-
+         this.candidatesDao.save(candidate);
 		return new SuccessResult("kaydoldunuz");
 	}
 

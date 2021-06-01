@@ -40,7 +40,7 @@ public class User {
 
 	
 	@Column(name = "is_mail_verify")
-	private Boolean isMailVerify;
+	private boolean isMailVerify;
 	;
 
 }

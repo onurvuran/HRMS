@@ -10,7 +10,7 @@ public interface EployerService {
 
 	DataResult<List<Employer>> getAll();
 
-	DataResult<Employer> getByEmail(String email);
+	
 
 	Result add(Employer employer);
 

@@ -7,6 +7,7 @@ import org.springframework.stereotype.Service;
 
 import com.hrms.hrms.businnes.abstracts.JobService;
 import com.hrms.hrms.core.utilities.result.DataResult;
+import com.hrms.hrms.core.utilities.result.ErrorResult;
 import com.hrms.hrms.core.utilities.result.Result;
 import com.hrms.hrms.core.utilities.result.SuccessDataResult;
 import com.hrms.hrms.core.utilities.result.SuccessResult;
@@ -16,26 +17,35 @@ import com.hrms.hrms.entities.concretes.JobPosition;
 @Service
 public class JobManager implements JobService {
 	private JobPositionDao jobDao;
-	
-	
-     @Autowired
+
+	@Autowired
 	public JobManager(JobPositionDao jobDao) {
 		super();
 		this.jobDao = jobDao;
 	}
 
 	@Override
-  public DataResult<List<JobPosition>> getAll() {
-		
-		return new SuccessDataResult<List<JobPosition>>(this.jobDao.findAll(),"Jobtitle listelendi");  //this.jobDao.findAll();
+	public DataResult<List<JobPosition>> getAll() {
+
+		return new SuccessDataResult<List<JobPosition>>(this.jobDao.findAll(), "Jobtitle listelendi"); // this.jobDao.findAll();
 	}
+
+	
 
 	@Override
-	public Result add(JobPosition jobTitle) {
-		this.jobDao.save(jobTitle);
-		return new SuccessResult("Job eklendi.");
-	}
-	
-	
+	public Result add(JobPosition jobPosition) {
 
+
+       if (this.jobDao.existsByPosition(jobPosition.getPosition())) {
+    	   
+    	   return new ErrorResult("Bu isme sahip pozisyon bulunmaktadır.");
+		
+	}
+		
+		
+
+		this.jobDao.save(jobPosition);
+		return new SuccessResult("Pozisyon eklenmiştir.");
+
+	}
 }
